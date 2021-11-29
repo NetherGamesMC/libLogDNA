@@ -1,0 +1,23 @@
+{
+  "name": "nethergamesmc/liblogdna",
+  "version": "1.0.0",
+  "description": "Library for publishing logs to LogDNA",
+  "license": "proprietary",
+  "type": "project",
+  "require": {
+    "php": "^8.0",
+    "nethergamesmc/libasyncurl": "dev-master"
+  },
+  "require-dev": {
+    "phpstan/phpstan": "1.2.0"
+  },
+  "repositories": [
+    { "type": "vcs", "url": "git@github.com:NetherGamesMC/libasynCurl.git" }
+  ],
+  "autoload": {
+    "psr-4": {
+      "libDiscord\\": "/"
+    }
+  },
+  "minimum-stability": "dev"
+}

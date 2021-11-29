@@ -1,0 +1,15 @@
+parameters:
+    level: max
+    checkMissingIterableValueType: false
+    paths:
+        - .
+    bootstrapFiles:
+        - phar://PharBuilder/PocketMine-MP.phar/vendor/autoload.php
+    scanDirectories:
+        - vendor/nethergamesmc/libasyncurl
+        - phar://PharBuilder/PocketMine-MP.phar
+    excludePaths:
+        analyse:
+            - bin
+            - PharBuilder
+            - vendor
