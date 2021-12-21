@@ -3,18 +3,23 @@ declare(strict_types=1);
 
 namespace libLogDNA\attachment;
 
-use libLogDNA\LogProxy;
+use libLogDNA\LogInstance;
+use libLogDNA\LogThread;
+use pocketmine\utils\TextFormat;
+use ThreadedLoggerAttachment;
 
-class PublisherAttachment extends \ThreadedLoggerAttachment
+class PublisherAttachment extends ThreadedLoggerAttachment
 {
+    /** @var LogThread */
+    public LogThread $logger;
 
-    public function __construct(public LogProxy $logProxy)
+    public function __construct()
     {
-
+        $this->logger = LogInstance::get();
     }
 
     public function log($level, $message)
     {
-        $this->logProxy->logMessage($message, $level);
+        $this->logger->ingestLog(preg_filter('/\[(.*?)] \[(.*?)]: /', '', TextFormat::clean($message)), $level);
     }
 }
