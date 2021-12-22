@@ -94,6 +94,7 @@ class LogThread extends Thread
                     $digest['line'] = $message[0];
                     $digest['level'] = strtoupper($message[1]);
                     $digest['app'] = $message[2];
+                    $digest['timestamp'] = $message[3];
                     $digest['env'] = $this->environment;
 
                     $results[] = $digest;
@@ -163,7 +164,7 @@ class LogThread extends Thread
         }
 
         $this->mainToThreadBuffer->synchronized(function () use ($message, $level, $threadName) {
-            $this->mainToThreadBuffer[] = igbinary_serialize([$message, $level, $threadName]);
+            $this->mainToThreadBuffer[] = igbinary_serialize([$message, $level, $threadName, time()]);
         });
     }
 }
