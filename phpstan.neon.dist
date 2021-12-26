@@ -8,3 +8,8 @@ parameters:
     scanDirectories:
         - vendor/nethergamesmc/ngessentials
         - phar://PharBuilder/PocketMine-MP.phar
+    excludePaths:
+        analyse:
+            - bin
+            - PharBuilder
+            - vendor
