@@ -18,7 +18,11 @@ class PublisherAttachment extends ThreadedLoggerAttachment
         $this->logger = LogInstance::get();
     }
 
-    public function log($level, $message)
+    /**
+     * @param mixed $level
+     * @param string $message
+     */
+    public function log($level, $message): void
     {
         $this->logger->ingestLog(preg_filter('/\[(.*?)] \[(.*?)]: /', '', TextFormat::clean($message)), $level);
     }

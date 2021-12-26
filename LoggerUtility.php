@@ -11,27 +11,27 @@ use LogLevel;
  */
 class LoggerUtility
 {
-    public static function emergency($message): void
+    public static function emergency(string $message): void
     {
         LogInstance::get()->ingestLog($message, LogLevel::EMERGENCY);
     }
 
-    public static function alert($message): void
+    public static function alert(string $message): void
     {
         LogInstance::get()->ingestLog($message, LogLevel::ALERT);
     }
 
-    public static function critical($message): void
+    public static function critical(string $message): void
     {
         LogInstance::get()->ingestLog($message, LogLevel::CRITICAL);
     }
 
-    public static function error($message): void
+    public static function error(string $message): void
     {
         LogInstance::get()->ingestLog($message, LogLevel::ERROR);
     }
 
-    public static function warning($message): void
+    public static function warning(string $message): void
     {
         LogInstance::get()->ingestLog($message, LogLevel::WARNING);
     }

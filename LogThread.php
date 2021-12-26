@@ -50,7 +50,7 @@ class LogThread extends Thread
         private string $hostname,
         array          $tags,
         array          $threadExclusion = ["Server thread"],
-        array          $logExcludes = [LogLevel::INFO, LogLevel::NOTICE],
+        array          $logExcludes = [LogLevel::INFO, LogLevel::NOTICE, LogLevel::WARNING],
         array          $regexIncludes = ["[NetworkSession: (.*?)]", "/Graceful shutdown complete/"],
         private string $environment = 'production'
     )
@@ -112,7 +112,6 @@ class LogThread extends Thread
                 $results = [];
 
                 while (($buffer = $this->mainToThreadBuffer->shift()) !== null) {
-                    /** @var array $message */
                     $message = igbinary_unserialize($buffer);
 
                     $digest = [];
