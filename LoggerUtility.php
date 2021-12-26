@@ -36,17 +36,17 @@ class LoggerUtility
         LogInstance::get()->ingestLog($message, LogLevel::WARNING);
     }
 
-    public static function notice($message): void
+    public static function notice(string $message): void
     {
         LogInstance::get()->ingestLog($message, LogLevel::NOTICE);
     }
 
-    public static function info($message): void
+    public static function info(string $message): void
     {
         LogInstance::get()->ingestLog($message);
     }
 
-    public static function debug($message): void
+    public static function debug(string $message): void
     {
         LogInstance::get()->ingestLog($message, LogLevel::DEBUG);
     }
