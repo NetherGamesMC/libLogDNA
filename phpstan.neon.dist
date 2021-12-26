@@ -2,7 +2,7 @@ parameters:
     level: 6
     checkMissingIterableValueType: false
     paths:
-        - src
+        - .
     bootstrapFiles:
         - phar://PharBuilder/PocketMine-MP.phar/vendor/autoload.php
     scanDirectories:
