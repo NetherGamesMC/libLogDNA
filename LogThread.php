@@ -6,6 +6,7 @@ namespace libLogDNA;
 
 use libLogDNA\task\LogRegisterTask;
 use LogLevel;
+use NetherGames\NGEssentials\thread\NGClassLoader;
 use NetherGames\NGEssentials\thread\NGThreadPool;
 use pocketmine\Server;
 use pocketmine\thread\Thread;
@@ -20,6 +21,8 @@ use Threaded;
  */
 class LogThread extends Thread
 {
+    use NGClassLoader;
+
     public const PUBLISHING_DELAY = 5; // every 5 seconds
     public const PUBLISHER_URL = "https://logs.logdna.com/logs/ingest?hostname={host}&tags={tags}&now={now}";
 
