@@ -24,6 +24,7 @@ class LogThread extends Thread
     use NGClassLoader;
 
     public const PUBLISHING_DELAY = 5; // every 5 seconds
+    public const PUBLISHING_MAX_LINES = 10; // 10 lines per query.
     public const PUBLISHER_URL = "https://logs.logdna.com/logs/ingest?hostname={host}&tags={tags}&now={now}";
 
     /** @var Threaded */
@@ -160,7 +161,11 @@ class LogThread extends Thread
         $ingestUrl = str_replace(["{host}", "{tags}", "{now}"], [$this->hostname, $this->tagsEncoded, time()], self::PUBLISHER_URL);
 
         try {
-            $jsonPayload = json_encode(['lines' => $payload]);
+            $chunks = array_chunk($payload, self::PUBLISHING_MAX_LINES);
+            $lines = array_shift($chunks);
+            $pending = array_merge(...$chunks);
+
+            $jsonPayload = json_encode(['lines' => $lines]);
 
             $v = Internet::simpleCurl($ingestUrl, 10, [
                 "User-Agent: NetherGamesMC/libLogDNA",
