@@ -25,7 +25,7 @@ class LogThread extends Thread
 
     public const PUBLISHING_DELAY = 5; // every 5 seconds
     public const PUBLISHING_MAX_LINES = 10; // 10 lines per query.
-    public const PUBLISHER_URL = "https://logs.logdna.com/logs/ingest?hostname={host}&tags={tags}&now={now}";
+    public const PUBLISHER_URL = "https://logs.logdna.com/logs/ingest?hostname={host}&tags={tags}";
 
     /** @var Threaded */
     private Threaded $mainToThreadBuffer;
@@ -95,7 +95,7 @@ class LogThread extends Thread
             $this->tickProcessor($pending, $logExcludes, $regexIncludes, $threadExclusion);
 
             $time = microtime(true) - $start;
-            if ($time < self::PUBLISHING_DELAY) {
+            if ($time < self::PUBLISHING_DELAY && $pending === null) {
                 $sleepUntil = (int)((self::PUBLISHING_DELAY - $time) * 1000000);
 
                 $this->synchronized(function () use ($sleepUntil): void {
@@ -158,12 +158,14 @@ class LogThread extends Thread
             return;
         }
 
-        $ingestUrl = str_replace(["{host}", "{tags}", "{now}"], [$this->hostname, $this->tagsEncoded, time()], self::PUBLISHER_URL);
+        $ingestUrl = str_replace(["{host}", "{tags}"], [$this->hostname, $this->tagsEncoded, time()], self::PUBLISHER_URL);
 
         try {
             $chunks = array_chunk($payload, self::PUBLISHING_MAX_LINES);
             $lines = array_shift($chunks);
             $pending = array_merge(...$chunks);
+
+            var_dump(count($pending));
 
             $jsonPayload = json_encode(['lines' => $lines]);
 
@@ -177,7 +179,7 @@ class LogThread extends Thread
                 CURLOPT_POSTFIELDS => $jsonPayload
             ]);
 
-            if ($v->getCode() === 200) {
+            if ($v->getCode() === 200 && $pending !== null && empty($pending)) {
                 $pending = null;
             }
         } catch (InternetException) {
