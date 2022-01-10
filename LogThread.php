@@ -165,8 +165,6 @@ class LogThread extends Thread
             $lines = array_shift($chunks);
             $pending = array_merge(...$chunks);
 
-            var_dump(count($pending));
-
             $jsonPayload = json_encode(['lines' => $lines]);
 
             $v = Internet::simpleCurl($ingestUrl, 10, [
