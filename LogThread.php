@@ -24,7 +24,7 @@ class LogThread extends Thread
     use NGClassLoader;
 
     public const PUBLISHING_DELAY = 5; // every 5 seconds
-    public const PUBLISHING_MAX_LINES = 10; // 10 lines per query.
+    public const PUBLISHING_MAX_LINES = 20; // 20 lines per query.
     public const PUBLISHER_URL = "https://logs.logdna.com/logs/ingest?hostname={host}&tags={tags}";
 
     /** @var Threaded */
