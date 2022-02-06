@@ -37,6 +37,8 @@ class LogThread extends Thread
     private string $logExclusion;
     /** @var string */
     private string $regexInclusion;
+    /** @var string */
+    private string $forceIgnore;
     /** @var bool */
     private bool $isRunning = true;
 
@@ -46,6 +48,7 @@ class LogThread extends Thread
      * @param array $tags The tags of the software itself, can be more than one to indicate specific type of server.
      * @param array $threadExclusion The thread that will be responsible to excludes all given log exclusion. Other threads will be able to send the logs freely even with exclusion.
      * @param array $logExcludes The log level that will be excluded from being logged into logDNA.
+     * @param array $forceIgnore Force ignores any lines within this level.
      * @param array $regexIncludes The regular expression for a log pattern that will be included even the log is being excluded.
      * @param string $environment The environment of the server software.
      */
@@ -54,8 +57,9 @@ class LogThread extends Thread
         private string $hostname,
         array          $tags,
         array          $threadExclusion = ["Server thread"],
-        array          $logExcludes = [LogLevel::INFO, LogLevel::NOTICE, LogLevel::WARNING],
-        array          $regexIncludes = ["[NetworkSession: (.*?)]", "/Graceful shutdown complete/"],
+        array          $logExcludes = [LogLevel::INFO, LogLevel::NOTICE, LogLevel::WARNING, LogLevel::ERROR],
+        array          $forceIgnore = [LogLevel::NOTICE, LogLevel::WARNING, LogLevel::ERROR],
+        array          $regexIncludes = ["#^\[NetworkSession: (.*?)] Player#i", "#^\[NetworkSession: (.*?)] Session closed#i", "/Graceful shutdown complete/i"],
         private string $environment = 'production'
     )
     {
@@ -64,6 +68,7 @@ class LogThread extends Thread
         $this->threadExclusion = implode(",", $threadExclusion);
         $this->logExclusion = implode(",", $logExcludes);
         $this->regexInclusion = implode(",", $regexIncludes);
+        $this->forceIgnore = implode(",", $forceIgnore);
 
         LogInstance::set($this);
 
@@ -87,12 +92,13 @@ class LogThread extends Thread
         $logExcludes = explode(',', $this->logExclusion);
         $regexIncludes = explode(',', $this->regexInclusion);
         $threadExclusion = explode(',', $this->threadExclusion);
+        $forceIgnore = explode(",", $this->forceIgnore);
 
         $pending = null;
         while ($this->isRunning) {
             $start = microtime(true);
 
-            $this->tickProcessor($pending, $logExcludes, $regexIncludes, $threadExclusion);
+            $this->tickProcessor($pending, $logExcludes, $regexIncludes, $threadExclusion, $forceIgnore);
 
             $time = microtime(true) - $start;
             if ($time < self::PUBLISHING_DELAY && $pending === null) {
@@ -106,10 +112,10 @@ class LogThread extends Thread
 
         $this->ingestLog("Shutting down LogDNA logger utility.");
 
-        $this->tickProcessor($pending, $logExcludes, $regexIncludes, $threadExclusion);
+        $this->tickProcessor($pending, $logExcludes, $regexIncludes, $threadExclusion, $forceIgnore);
     }
 
-    private function tickProcessor(?array &$pending, array $logExcludes, array $regexIncludes, array $threadExclusion): void
+    private function tickProcessor(?array &$pending, array $logExcludes, array $regexIncludes, array $threadExclusion, array $forceIgnore): void
     {
         if ($pending === null) {
             $payload = $this->mainToThreadBuffer->synchronized(function (): array {
@@ -150,6 +156,10 @@ class LogThread extends Thread
                     unset($payload[$id]);
                 }
             }
+
+            if (in_array(strtolower($level), $forceIgnore, true)) {
+                unset($payload[$id]);
+            }
         }
 
         // Try to reindex the array values, the keys should be in the wrong
@@ -177,7 +187,7 @@ class LogThread extends Thread
                 CURLOPT_POSTFIELDS => $jsonPayload
             ]);
 
-            if ($v->getCode() === 200 && $pending !== null && empty($pending)) {
+            if ($v->getCode() === 200 && empty($pending)) {
                 $pending = null;
             }
         } catch (InternetException) {
