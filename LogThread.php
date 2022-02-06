@@ -59,7 +59,7 @@ class LogThread extends Thread
         array          $threadExclusion = ["Server thread"],
         array          $logExcludes = [LogLevel::INFO, LogLevel::NOTICE, LogLevel::WARNING, LogLevel::ERROR],
         array          $forceIgnore = [LogLevel::NOTICE, LogLevel::WARNING, LogLevel::ERROR],
-        array          $regexIncludes = ["#^\[NetworkSession: (.*?)] Player#i", "#^\[NetworkSession: (.*?)] Session closed#i", "/Graceful shutdown complete/i"],
+        array          $regexIncludes = ["#^\[NetworkSession: ((?!localhost 19132).)*] Player#i", "#^\[NetworkSession:((?!localhost 19132).)*] Session closed#i", "/Graceful shutdown complete/i"],
         private string $environment = 'production'
     )
     {
