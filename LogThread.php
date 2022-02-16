@@ -39,8 +39,6 @@ class LogThread extends Thread
     private string $regexInclusion;
     /** @var string */
     private string $forceIgnore;
-    /** @var bool */
-    private bool $isRunning = true;
 
     /**
      * @param string $accessToken The access token to the logDNA server, this property is required.
@@ -95,7 +93,7 @@ class LogThread extends Thread
         $forceIgnore = explode(",", $this->forceIgnore);
 
         $pending = null;
-        while ($this->isRunning) {
+        while (!$this->isKilled) {
             $start = microtime(true);
 
             $this->tickProcessor($pending, $logExcludes, $regexIncludes, $threadExclusion, $forceIgnore);
@@ -193,18 +191,6 @@ class LogThread extends Thread
         } catch (InternetException) {
             $pending = $payload;
         }
-    }
-
-    public function quit(): void
-    {
-        // Proper synchronization to quit the thread.
-        $this->synchronized(function (): void {
-            $this->isRunning = false;
-
-            $this->notify();
-        });
-
-        parent::quit();
     }
 
     /**
