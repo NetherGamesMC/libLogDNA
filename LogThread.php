@@ -6,8 +6,6 @@ namespace libLogDNA;
 
 use libLogDNA\task\LogRegisterTask;
 use LogLevel;
-use NetherGames\NGEssentials\thread\NGClassLoader;
-use NetherGames\NGEssentials\thread\NGThreadPool;
 use pocketmine\Server;
 use pocketmine\thread\Thread;
 use pocketmine\thread\Worker;
@@ -21,8 +19,6 @@ use Threaded;
  */
 class LogThread extends Thread
 {
-    use NGClassLoader;
-
     public const PUBLISHING_DELAY = 5; // every 5 seconds
     public const PUBLISHING_MAX_LINES = 20; // 20 lines per query.
     public const PUBLISHER_URL = "https://logs.logdna.com/logs/ingest?hostname={host}&tags={tags}";
@@ -51,6 +47,7 @@ class LogThread extends Thread
      * @param string $environment The environment of the server software.
      */
     public function __construct(
+        private string $composerPath,
         private string $accessToken,
         private string $hostname,
         array          $tags,
@@ -74,15 +71,15 @@ class LogThread extends Thread
             Server::getInstance()->getAsyncPool()->submitTaskToWorker(new LogRegisterTask(), $worker);
         });
 
-        NGThreadPool::getInstance()->addWorkerStartHook(function (int $worker): void {
-            NGThreadPool::getInstance()->submitTaskToWorker(new LogRegisterTask(), $worker);
-        });
-
         $this->start(PTHREADS_INHERIT_INI | PTHREADS_INHERIT_CONSTANTS);
     }
 
     protected function onRun(): void
     {
+        if (!empty($this->composerPath)) {
+            require $this->composerPath;
+        }
+
         LogInstance::set($this);
 
         $this->ingestLog("Starting LogDNA logger utility.");

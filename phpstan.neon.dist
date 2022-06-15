@@ -3,11 +3,6 @@ parameters:
     checkMissingIterableValueType: false
     paths:
         - .
-    bootstrapFiles:
-        - phar://PharBuilder/PocketMine-MP.phar/vendor/autoload.php
-    scanDirectories:
-        - vendor/nethergamesmc/ngessentials
-        - phar://PharBuilder/PocketMine-MP.phar
     excludePaths:
         analyse:
             - bin
