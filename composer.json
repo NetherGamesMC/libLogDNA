@@ -2,7 +2,7 @@
   "name": "nethergamesmc/liblogdna",
   "version": "1.0.1",
   "description": "Library for publishing logs to LogDNA",
-  "license": "proprietary",
+  "license": "GPL-2.0+",
   "type": "project",
   "require": {
     "php": "^8.0"
